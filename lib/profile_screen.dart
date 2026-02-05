@@ -20,10 +20,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final TextEditingController _celularController =
       TextEditingController(text: "3001234567");
 
-  final String nombre = "Juan";
-  final String apellido = "Pérez";
-  final String correo = "juanperez@email.com";
-  final String documento = "CC 123456789";
+  final String nombre = "Pacho";
+  final String apellido = "Rodrigez";
+  final String correo = "pachitord10@email.com";
+  final String documento = "CC 123456642";
+  final String tipoUsuario = "Estudiante";
   final String fechaNacimiento = "1999-05-20";
 
   Future<void> _pickImage() async {
@@ -87,7 +88,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
             const SizedBox(height: 16),
 
-            if (_matchesSearch("$nombre $apellido"))
+            // 👉 Mostrar nombre incluso si buscas "Estudiante"
+            if (_matchesSearch("$nombre $apellido") || _matchesSearch(tipoUsuario))
               Text(
                 "$nombre $apellido",
                 style:
@@ -108,6 +110,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       Icons.phone, "Celular", _celularController)
                   : _infoRow(
                       Icons.phone, "Celular", _celularController.text),
+
+            if (_matchesSearch(tipoUsuario))
+              _infoRow(Icons.school, "Tipo de usuario", tipoUsuario),
 
             if (_matchesSearch(fechaNacimiento))
               _infoRow(Icons.cake, "Nacimiento", fechaNacimiento),
