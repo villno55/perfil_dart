@@ -17,15 +17,32 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final TextEditingController _searchController = TextEditingController();
   String _searchText = "";
 
-  final TextEditingController _celularController =
-      TextEditingController(text: "3001234567");
+  // Controladores
+  late TextEditingController _nombreController;
+  late TextEditingController _apellidoController;
+  late TextEditingController _correoController;
+  late TextEditingController _documentoController;
+  late TextEditingController _tipoUsuarioController;
+  late TextEditingController _fechaNacimientoController;
+  late TextEditingController _celularController;
 
-  final String nombre = "Pacho";
-  final String apellido = "Rodrigez";
-  final String correo = "pachitord10@email.com";
-  final String documento = "CC 123456642";
-  final String tipoUsuario = "Estudiante";
-  final String fechaNacimiento = "1999-05-20";
+  @override
+  void initState() {
+    super.initState();
+
+    _nombreController = TextEditingController(text: "Pacho");
+    _apellidoController = TextEditingController(text: "Rodrigez");
+    _correoController =
+        TextEditingController(text: "pachitord10@email.com");
+    _documentoController =
+        TextEditingController(text: "CC 123456642");
+    _tipoUsuarioController =
+        TextEditingController(text: "Estudiante");
+    _fechaNacimientoController =
+        TextEditingController(text: "1999-05-20");
+    _celularController =
+        TextEditingController(text: "3001234567");
+  }
 
   Future<void> _pickImage() async {
     final picked =
@@ -77,7 +94,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 backgroundImage: _profileImage != null
                     ? FileImage(_profileImage!)
                     : const AssetImage(
-                            "assets/images/profile_default.jpg")
+                        "assets/images/profile_default.jpg")
                         as ImageProvider,
                 child: _isEditing
                     ? const Icon(Icons.camera_alt,
@@ -88,34 +105,74 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
             const SizedBox(height: 16),
 
-            // 👉 Mostrar nombre incluso si buscas "Estudiante"
-            if (_matchesSearch("$nombre $apellido") || _matchesSearch(tipoUsuario))
-              Text(
-                "$nombre $apellido",
-                style:
-                    const TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
-              ),
+            // Nombre y Apellido
+            if (_matchesSearch(
+                "${_nombreController.text} ${_apellidoController.text}") ||
+                _matchesSearch(_tipoUsuarioController.text))
+              _isEditing
+                  ? Column(
+                      children: [
+                        _editableField(
+                            Icons.person, "Nombre", _nombreController),
+                        const SizedBox(height: 10),
+                        _editableField(Icons.person_outline,
+                            "Apellido", _apellidoController),
+                      ],
+                    )
+                  : Text(
+                      "${_nombreController.text} ${_apellidoController.text}",
+                      style: const TextStyle(
+                          fontSize: 26,
+                          fontWeight: FontWeight.bold),
+                    ),
 
             const SizedBox(height: 40),
 
-            if (_matchesSearch(correo))
-              _infoRow(Icons.email, "Correo", correo),
+            // Correo
+            if (_matchesSearch(_correoController.text))
+              _isEditing
+                  ? _editableField(
+                      Icons.email, "Correo", _correoController)
+                  : _infoRow(Icons.email, "Correo",
+                      _correoController.text),
 
-            if (_matchesSearch(documento))
-              _infoRow(Icons.badge, "Documento", documento),
+            // Documento
+            if (_matchesSearch(_documentoController.text))
+              _isEditing
+                  ? _editableField(
+                      Icons.badge, "Documento",
+                      _documentoController)
+                  : _infoRow(Icons.badge, "Documento",
+                      _documentoController.text),
 
+            // Celular
             if (_matchesSearch(_celularController.text))
               _isEditing
                   ? _editableField(
-                      Icons.phone, "Celular", _celularController)
-                  : _infoRow(
-                      Icons.phone, "Celular", _celularController.text),
+                      Icons.phone, "Celular",
+                      _celularController)
+                  : _infoRow(Icons.phone, "Celular",
+                      _celularController.text),
 
-            if (_matchesSearch(tipoUsuario))
-              _infoRow(Icons.school, "Tipo de usuario", tipoUsuario),
+            // Tipo usuario
+            if (_matchesSearch(_tipoUsuarioController.text))
+              _isEditing
+                  ? _editableField(Icons.school,
+                      "Tipo de usuario",
+                      _tipoUsuarioController)
+                  : _infoRow(Icons.school,
+                      "Tipo de usuario",
+                      _tipoUsuarioController.text),
 
-            if (_matchesSearch(fechaNacimiento))
-              _infoRow(Icons.cake, "Nacimiento", fechaNacimiento),
+            // Fecha nacimiento
+            if (_matchesSearch(
+                _fechaNacimientoController.text))
+              _isEditing
+                  ? _editableField(Icons.cake,
+                      "Nacimiento",
+                      _fechaNacimientoController)
+                  : _infoRow(Icons.cake, "Nacimiento",
+                      _fechaNacimientoController.text),
 
             const SizedBox(height: 40),
 
@@ -123,11 +180,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
               width: double.infinity,
               child: ElevatedButton.icon(
                 onPressed: () {
-                  setState(() => _isEditing = !_isEditing);
+                  setState(() {
+                    _isEditing = !_isEditing;
+                  });
                 },
-                icon: Icon(_isEditing ? Icons.save : Icons.edit),
-                label:
-                    Text(_isEditing ? "Guardar cambios" : "Editar perfil"),
+                icon: Icon(
+                    _isEditing ? Icons.save : Icons.edit),
+                label: Text(_isEditing
+                    ? "Guardar cambios"
+                    : "Editar perfil"),
               ),
             ),
           ],
@@ -136,21 +197,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _infoRow(IconData icon, String label, String value) {
+  Widget _infoRow(
+      IconData icon, String label, String value) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10),
+      padding:
+          const EdgeInsets.symmetric(vertical: 10),
       child: Row(
         children: [
           Icon(icon, size: 28),
           const SizedBox(width: 16),
           Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment:
+                CrossAxisAlignment.start,
             children: [
               Text(label,
-                  style: const TextStyle(color: Colors.grey)),
+                  style: const TextStyle(
+                      color: Colors.grey)),
               Text(value,
                   style: const TextStyle(
-                      fontSize: 18, fontWeight: FontWeight.w600)),
+                      fontSize: 18,
+                      fontWeight:
+                          FontWeight.w600)),
             ],
           ),
         ],
@@ -159,16 +226,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _editableField(
-      IconData icon, String label, TextEditingController controller) {
+      IconData icon,
+      String label,
+      TextEditingController controller) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10),
+      padding:
+          const EdgeInsets.symmetric(vertical: 10),
       child: TextField(
         controller: controller,
         decoration: InputDecoration(
           prefixIcon: Icon(icon),
           labelText: label,
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius:
+                BorderRadius.circular(12),
           ),
         ),
       ),
@@ -178,6 +249,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   void dispose() {
     _searchController.dispose();
+    _nombreController.dispose();
+    _apellidoController.dispose();
+    _correoController.dispose();
+    _documentoController.dispose();
+    _tipoUsuarioController.dispose();
+    _fechaNacimientoController.dispose();
     _celularController.dispose();
     super.dispose();
   }
